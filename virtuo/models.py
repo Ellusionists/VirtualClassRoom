@@ -2,9 +2,6 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIR = os.path.join(BASE_DIR, 'media')
 
 # Create your models here.
 

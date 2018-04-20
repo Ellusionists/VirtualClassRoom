@@ -29,16 +29,5 @@ class MaterialModelForm(forms.ModelForm):
             "related_course",
             "m_type",
             ]
-                    # widgets = {
-        #   "description": forms.Textarea(
-        #           attrs={
-        #               "placeholder": "New Description"
-        #           }
-        #       ),
-        #   "title": forms.TextInput(
-        #       attrs= {
-        #           "placeholder": "Title"
-        #       }
-        #   )
-        # }
+
 
