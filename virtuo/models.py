@@ -2,6 +2,9 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from django.db import models
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIR = os.path.join(BASE_DIR, 'media')
 
 # Create your models here.
 
@@ -10,8 +13,11 @@ class Course(models.Model):
     course_id = models.CharField(max_length = 35, null = False, blank = False, unique = True, primary_key = True)
     credits = models.IntegerField(null = False, blank = False)
 
+    # def __str__(self):
+    #     return "%s %s %s" % (self.course_name, self.course_id, self.credits)
+
     def __str__(self):
-        return "%s %s %s" % (self.course_name, self.course_id, self.credits)
+        return "%s" % (self.course_id)
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete= models.CASCADE, default = 1)
@@ -48,7 +54,19 @@ class Material(models.Model):
     m_type = models.CharField(max_length = 3, choices = M_TYPE, null = True)
 
     def __str__(self):
-        return "%s %s" % (self.material_name, self.uploaded_by)
+        return "%s" % (self.material_name)
+
+    def get_course(self):
+        return "%s" % (self.related_course)
+ 
+    def get_material_id(self):
+        return "%d" % (self.id)
+
+    def get_download_path(self):
+        return "%s/%s" % (DIR, self.material_link)
+
+    # def __str__(self):
+    #     return "%s %s" % (self.material_name, self.uploaded_by)
 
 class Question(models.Model):
     question_id = models.CharField(max_length = 35, null = False, blank = False, primary_key = True) #Add verbose name

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+import os
+from django.conf import settings
+from wsgiref.util import FileWrapper
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View, DetailView, CreateView, UpdateView, ListView, DeleteView
 from django.contrib.auth import authenticate, login, logout
@@ -149,3 +152,19 @@ class MaterialDeleteView(DeleteView):
 
 class MaterialListView(ListView):
     model = Material
+
+class MaterialDownloadView(DetailView):
+    model = Material
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        filepath = os.path.join(settings.MEDIA_ROOT, str(obj.material_link))
+        print(filepath)
+        wrapper = FileWrapper(file(filepath))
+        response = HttpResponse(wrapper, content_type = "application/force-download")
+        response["Content-Disposition"] = "attachment; filename = %s" %(obj.material_name)
+        response["X-SendFile"] = str(obj.material_name)
+        return response
+
+    # def get_queryset(self):
+    #     return Material.objects.filter(Course__course_id = Student__)

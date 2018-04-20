@@ -8,7 +8,7 @@
 <h1>Material</h1>
 <ul>
 {% for material in object_list %}
-    <li>{{ material.material_name }} - {{ material.related_course }}</li>
+   <a href="{{ material.get_material_id }}"> <li>{{ material.material_name }} - {{ material.related_course }}</li> </a>
 {% empty %}
     <li>No material yet.</li>
 {% endfor %}
