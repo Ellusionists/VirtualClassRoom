@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-from django.shortcuts import render, redirect
+import os
+from django.conf import settings
+from wsgiref.util import FileWrapper
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, reverse
 from django.views.generic import View, DetailView, CreateView, UpdateView, ListView, DeleteView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .forms import UserForm, StudentForm, TeacherForm, MaterialModelForm
+from .forms import UserForm, StudentForm, TeacherForm, MaterialModelForm, EditProfileForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
 from .models import Material, Student, Teacher, Question, Course
+
+
 
 # Create your views here.
 
@@ -136,6 +144,7 @@ class MaterialCreateView(View):
     model = Material
     template_name = "addCourse.html"
     form_class = MaterialModelForm
+
     # success_url = "/view/"
     # uploaded_by = request.user.username;
 
@@ -145,7 +154,7 @@ class MaterialCreateView(View):
         return render(request, self.template_name, {'form':form})
 
     def post(self, request):    
-        form = self.form_class(request.POST)
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             material = form.save(commit=False)
             material.uploaded_by = request.user.username
@@ -201,3 +210,56 @@ class MaterialDownloadView(DetailView):
 
     # def get_queryset(self):
     #     return Material.objects.filter(Course__course_id = Student__)
+
+def view_profile(request, pk=None):
+    if pk:
+        user = User.objects.get(pk=pk)
+    else:
+        user = request.user
+    args = {'user': user}
+    return render(request, 'profile.html', args)
+
+
+def edit_profile(request):
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return redirect(('/profile'))
+    else:
+        form = EditProfileForm(instance=request.user)
+        args = {'form': form}
+    return render(request, 'profile_edit.html', args)
+
+# def change_password(request):
+#     if request.method == 'POST':
+#         form = PasswordChangeForm(data=request.POST, user=request.user)
+
+#         if form.is_valid():
+#             form.save()
+#             update_session_auth_hash(request, form.user)
+#             return redirect(reverse('profile'))
+#         else:
+#             return redirect(reverse('change_password'))
+#     else:
+#         form = PasswordChangeForm(user=request.user)
+
+#         args = {'form': form}
+#     return render(request, 'change_password.html', args)
+
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('edit_profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'change_password.html', {
+        'form': form
+    })

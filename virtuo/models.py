@@ -59,9 +59,6 @@ class Material(models.Model):
     def get_material_id(self):
         return "%d" % (self.id)
 
-    def get_download_path(self):
-        return "%s/%s" % (DIR, self.material_link)
-
     # def __str__(self):
     #     return "%s %s" % (self.material_name, self.uploaded_by)
 
